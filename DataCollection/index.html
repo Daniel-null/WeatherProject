@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <select name="dataset" id="req">
+            <optgroup label="Temperature">
+                <option value="InTemp">Indoor Temperature</option>
+                <option value="OutTemp">OutDoor Temperature</option>                
+            </optgroup>
+            <optgroup label="Humidity">
+                <option value="InHumid">Indoor Humidity</option>
+                <option value="OutHumid">Outdoor Humidity</option>
+            </optgroup>
+        </select>
+        <select name="dataset2" id="req2">
+            <option value="None">None</option>
+            <optgroup label="Temperature">
+                <option value="InTemp">Indoor Temperature</option>
+                <option value="OutTemp">OutDoor Temperature</option>
+            </optgroup>
+            <optgroup label="Humidity">
+                <option value="InHumid">Indoor Temperature</option>
+                <option value="OutHumid">OutDooe Temperature</option>
+            </optgroup>
+        </select>
+    </div>
+    <div>
+        <p>start time end time</p>
+    </div>
+    <div>
+        <input type="date" id="start">
+        <input type="date" id="end">
+    </div>
+    <div>
+        <button id="request">Graph</button>
+    </div>
+    <div>
+        <img src="" alt="" id="graph">
+    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+        
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUycM5nuDdgq8T1vUE3yCHZcOLNqh5lYY",
+            authDomain: "tempmeasure-ac038.firebaseapp.com",
+            databaseURL: "https://tempmeasure-ac038-default-rtdb.firebaseio.com",
+            projectId: "tempmeasure-ac038",
+            storageBucket: "tempmeasure-ac038.appspot.com",
+            messagingSenderId: "679963048653",
+            appId: "1:679963048653:web:79f1214d6e6aa0a97ac784",
+            measurementId: "G-KFV33TYDVW"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        import {getDatabase, ref, set, get, child, update, remove}
+        from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"
+
+        const db = getDatabase();
+
+        var dataset1 = document.getElementById('req');
+        var dataset2 = document.getElementById('req2');
+        var request = document.getElementById('request');
+        var image = document.getElementById('graph');
+        var min = document.getElementById('start')
+        var max = document.getElementById('end')
+
+
+        function InsertData() {
+            set(ref(db, 'Request/'), {
+                Task: 'Requested',
+                Data1: dataset1.value,
+                Data2: dataset2.value,
+                Min: min.value,
+                Max: max.value,
+                Image: 'Null',
+                Status: 'Pending'
+            })
+            .then(()=>{
+                alert('Request has been made; currently pending');
+                SelectData()
+            })
+            .catch((error)=>{
+                alert('Unable to make request, '+error+' please try again');
+            });
+        }
+        
+        function SelectData() {
+            const dbref = ref(db);
+
+            get(child(dbref,'Request/Image')).then((snapshot)=>{
+                if(snapshot.exists() && snapshot.val().Status != 'Pending') {
+                    image.src = snapshot.val().Image;
+                }
+                else{
+                    sleep(30000)
+                    SelectData()
+                }
+            })
+            .catch((error)=>{
+                alert('Unable to make fetch, '+error+' please try again')
+            })
+        }
+        request.addEventListener('click', InsertData);
+    </script>
+</body>
+</html>
