@@ -15,22 +15,20 @@ app = firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://tempmeasure-ac038-default-rtdb.firebaseio.com/'
 })
 
-firebase_storage = pyrebase.initialize_app(cred, {
-    'databaseURL': 'https://tempmeasure-ac038-default-rtdb.firebaseio.com/'
-})
-storage = firebase_storage.storage()
+Config = {
+    'apiKey': "AIzaSyBUycM5nuDdgq8T1vUE3yCHZcOLNqh5lYY",
+    'authDomain': "tempmeasure-ac038.firebaseapp.com",
+    'databaseURL': "https://tempmeasure-ac038-default-rtdb.firebaseio.com",
+    'projectId': "tempmeasure-ac038",
+    'storageBucket': "tempmeasure-ac038.appspot.com",
+    'messagingSenderId': "679963048653",
+    'appId': "1:679963048653:web:79f1214d6e6aa0a97ac784",
+    'measurementId': "G-KFV33TYDVW",
+    'serviceAccount':'tempmeasure-ac038-firebase-adminsdk-btvrw-8575135791.json'
+}
 
-# Config = {
-#     'apiKey': "AIzaSyBUycM5nuDdgq8T1vUE3yCHZcOLNqh5lYY",
-#     'authDomain': "tempmeasure-ac038.firebaseapp.com",
-#     'databaseURL': "https://tempmeasure-ac038-default-rtdb.firebaseio.com",
-#     'projectId': "tempmeasure-ac038",
-#     'storageBucket': "tempmeasure-ac038.appspot.com",
-#     'messagingSenderId': "679963048653",
-#     'appId': "1:679963048653:web:79f1214d6e6aa0a97ac784",
-#     'measurementId': "G-KFV33TYDVW",
-#     'serviceAccount':'tempmeasure-ac038-firebase-adminsdk-btvrw-8575135791.json'
-# }
+firebase_storage = pyrebase.initialize_app(Config)
+storage = firebase_storage.storage()
 
 def time():
     #retrieving Eastern Standard time
@@ -123,7 +121,6 @@ def plotting(x, y, Date, OutT, task):
     if task == 'none':
         fig = plt.figure()
         plt.plot(x, y)
-        image = fig.savefig('')
     else:
         plt.plot(x, y)
         plt.plot(Date, OutT)
@@ -131,10 +128,10 @@ def plotting(x, y, Date, OutT, task):
     # plt.plot(bronxtime, bronxtemp, label='Bronx Temperature')
     # plt.figure(2)
     # plt.plot(timet, temperature, label='House Temperature')
-    # Image = plt.savefig('Graph')
-    # storage.child(Image).put('GraphImage.png')
+    plt.savefig('Graph')
+    storage.child('Graph.png').put('Graph.png')
 
-    plt.show()
+    #plt.show()
 
 req = db.reference('Request/')
 Mam = True

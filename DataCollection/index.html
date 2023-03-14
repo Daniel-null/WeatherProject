@@ -39,6 +39,7 @@
     </div>
     <div>
         <button id="request">Graph</button>
+        <button id="refresh">Refresh</button>
     </div>
     <div>
         <img src="" alt="" id="graph">
@@ -69,7 +70,12 @@
         import {getDatabase, ref, set, get, child, update, remove}
         from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"
 
+        import { getDownloadURL, getStorage} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-storage.js';
+
         const db = getDatabase();
+        const storage = getStorage();
+        const storageRef = ref(storage)
+        const graphImage = ref(storage, 'Graph.png')
 
         var dataset1 = document.getElementById('req');
         var dataset2 = document.getElementById('req2');
@@ -77,7 +83,15 @@
         var image = document.getElementById('graph');
         var min = document.getElementById('start')
         var max = document.getElementById('end')
+        var refresh = document.getElementById('refresh')
 
+        
+        function GetImage() {
+            task.then(snapshot => {
+                const url = snapshot.getDownloadURL
+                refresh.setAttribute('src', url)
+            })
+        }
 
         function InsertData() {
             set(ref(db, 'Request/'), {
@@ -115,6 +129,7 @@
             })
         }
         request.addEventListener('click', InsertData);
+        refresh.addEventListener('click', GetImage)
     </script>
 </body>
 </html>
