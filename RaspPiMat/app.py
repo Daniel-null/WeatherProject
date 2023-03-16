@@ -131,7 +131,7 @@ def plotting(x, y, Date, OutT, task):
     plt.savefig('Graph')
 
     storage.child('Graph.png').put('Graph.png')
-
+    print('Graphing complete')
     #plt.show()
 
 req = db.reference('Request/')
@@ -154,5 +154,4 @@ while Mam:
         'Status':'Completed',
         'Task':'Idling'
     })
-    print('Graphing complete')
     time.sleep(60)
