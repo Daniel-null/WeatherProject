@@ -149,7 +149,9 @@ while Mam:
             plotting(GraphData[0], GraphData[1], Bronx[0], Bronx[1], pend['Data2'])
         else:
             plotting(GraphData[2], GraphData[3], Bronx[0], Bronx[1], pend['Data2'])
-        Mam = False
-        
-
-    
+    #Completed = req.child('Task')
+    req.update({
+        'Status':'Completed',
+        'Task':'Idling'
+    })
+    time.sleep(60)
