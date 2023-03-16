@@ -154,4 +154,5 @@ while Mam:
         'Status':'Completed',
         'Task':'Idling'
     })
+    print('Graphing complete')
     time.sleep(60)
