@@ -30,7 +30,7 @@ Config = {
 firebase_storage = pyrebase.initialize_app(Config)
 storage = firebase_storage.storage()
 
-def time():
+def Localtime():
     #retrieving Eastern Standard time
     ts = time.time()
     systime = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
