@@ -118,7 +118,7 @@ def Bronx():
     return bronxtime, bronxtemp
     
 def plotting(x, y, Date, OutT, task):
-    if task == 'none':
+    if task == 'None':
         fig = plt.figure()
         plt.plot(x, y)
     else:
