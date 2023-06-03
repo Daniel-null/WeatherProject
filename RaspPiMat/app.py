@@ -8,6 +8,10 @@ import requests
 import json
 import time
 import datetime
+import threading
+import BxMeta
+
+
 
 #google real time database credentials and connection
 cred = credentials.Certificate("tempmeasure-ac038-firebase-adminsdk-btvrw-8575135791.json")
@@ -134,6 +138,9 @@ def plotting(x, y, Date, OutT, task):
     print('Graphing complete')
     #plt.show()
 
+
+Thread1 = threading.Thread(target=BxMeta, args=())
+Thread1.start()
 req = db.reference('Request/')
 Mam = True
 while Mam:
@@ -144,14 +151,16 @@ while Mam:
         Min = pend['Min']
         Max = pend['Max']
         GraphData = data(dataset1, dataset2, Min, Max)
-        Bronx = Bronx()
+        BronxData = Bronx()
         if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
-            plotting(GraphData[0], GraphData[1], Bronx[0], Bronx[1], pend['Data2'])
+            plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
         else:
-            plotting(GraphData[2], GraphData[3], Bronx[0], Bronx[1], pend['Data2'])
+            plotting(GraphData[2], GraphData[3], BronxData[0], BronxData[1], pend['Data2'])
     #Completed = req.child('Task')
     req.update({
         'Status':'Completed',
         'Task':'Idling'
     })
     time.sleep(60)
+
+
