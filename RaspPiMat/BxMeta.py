@@ -7,10 +7,7 @@ def HourTracker():
     current_time = now.strftime("%H:%M:%S")
     print(current_time)
     RawClockCount = current_time.split(':')
-    if int(RawClockCount[1]) and int(RawClockCount[2]) == 0:
-        Authorize = True
-        return Authorize
-    else:
+    if int(RawClockCount[1]) and int(RawClockCount[2]) != 0:
         time.sleep(1)
         HourTracker()
 
@@ -40,4 +37,7 @@ def Bronx():
     return bronxtime, BronxCelcius
 
 while True:
-    HourTracker()
+    Coin = HourTracker()
+    BronxData = Bronx()
+    Coin = False
+    

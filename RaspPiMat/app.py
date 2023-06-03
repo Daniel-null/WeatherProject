@@ -9,9 +9,6 @@ import json
 import time
 import datetime
 import threading
-import BxMeta
-
-
 
 #google real time database credentials and connection
 cred = credentials.Certificate("tempmeasure-ac038-firebase-adminsdk-btvrw-8575135791.json")
@@ -33,6 +30,15 @@ Config = {
 
 firebase_storage = pyrebase.initialize_app(Config)
 storage = firebase_storage.storage()
+
+def HourTracker():
+    now = datetime.datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print(current_time)
+    RawClockCount = current_time.split(':')
+    if int(RawClockCount[1]) and int(RawClockCount[2]) != 0:
+        time.sleep(1)
+        HourTracker()
 
 def Localtime():
     #retrieving Eastern Standard time
@@ -100,9 +106,6 @@ def data(Data1, Data2, Min, Max):
     return timeh, humidity, timet, temperature
 
 def Bronx():
-    bronxtemp = []
-    bronxtime = []
-
     #making a request for the meta data from my coordinates
     #then storing the temperature, humadity, and time stamps from my area
     rawmeta = requests.get('https://api.weather.gov/points/40.8104808,-73.9250748')
@@ -115,11 +118,17 @@ def Bronx():
             print('hourly forcast recieved')
             hourlyforecast = rawhourlyforcast.json()
             periodData = hourlyforecast['properties']['periods']
-            for i in range(len(periodData)):
-                BronxCelcius = (int(periodData[i]['temperature'])-32)*(5/9)
-                bronxtemp.append(BronxCelcius)
-                bronxtime.append(periodData[i]['startTime'])
-    return bronxtime, bronxtemp
+            BronxCelcius = (int(periodData[0]['temperature'])-32)*(5/9)
+            bronxtime = periodData[0]['startTime']
+        else:
+            print(rawmeta.status_code + 'error /n reatempting in 10 seconds')
+            time.sleep(10)
+            Bronx()
+    else:
+        print(rawmeta.status_code + 'error /n reatempting in 10 seconds')
+        time.sleep(10)
+        Bronx()
+    return bronxtime, BronxCelcius
     
 def plotting(x, y, Date, OutT, task):
     if task == 'None':
@@ -138,29 +147,37 @@ def plotting(x, y, Date, OutT, task):
     print('Graphing complete')
     #plt.show()
 
+def Clock():
+    Coin = HourTracker()
+    BronxData = Bronx()  
+    Coin = False
 
-Thread1 = threading.Thread(target=BxMeta, args=())
-Thread1.start()
 req = db.reference('Request/')
-Mam = True
-while Mam:
-    pend = req.get()
-    if pend['Task'] == 'Requested':
-        dataset1 = pend['Data1']
-        dataset2 = pend['Data2']
-        Min = pend['Min']
-        Max = pend['Max']
-        GraphData = data(dataset1, dataset2, Min, Max)
-        BronxData = Bronx()
-        if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
-            plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
-        else:
-            plotting(GraphData[2], GraphData[3], BronxData[0], BronxData[1], pend['Data2'])
-    #Completed = req.child('Task')
-    req.update({
-        'Status':'Completed',
-        'Task':'Idling'
-    })
-    time.sleep(60)
 
+#must fix datapipline
+def dataproccessing():
+    while True:
 
+        pend = req.get()
+        if pend['Task'] == 'Requested':
+            dataset1 = pend['Data1']
+            dataset2 = pend['Data2']
+            Min = pend['Min']
+            Max = pend['Max']
+            GraphData = data(dataset1, dataset2, Min, Max)
+
+            if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
+                plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
+            else:
+                plotting(GraphData[2], GraphData[3], BronxData[0], BronxData[1], pend['Data2'])
+        #Completed = req.child('Task')
+        req.update({
+            'Status':'Completed',
+            'Task':'Idling'
+        })
+        time.sleep(60)
+
+Thread1 = threading.Thread(target=Clock, args=())
+Thread2 = threading.Thread(target=dataproccessing, args=())
+Thread1.start()
+Thread2.start()
