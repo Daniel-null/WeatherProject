@@ -37,6 +37,7 @@ def Bronx():
     return bronxtime, BronxCelcius
 
 while True:
+    print(datetime.date.today())
     Coin = HourTracker()
     BronxData = Bronx()
     Coin = False

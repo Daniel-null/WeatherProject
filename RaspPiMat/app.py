@@ -39,6 +39,8 @@ def HourTracker():
     if int(RawClockCount[1]) and int(RawClockCount[2]) != 0:
         time.sleep(1)
         HourTracker()
+    else:
+        return datetime.date.today()
 
 def Localtime():
     #retrieving Eastern Standard time
@@ -119,7 +121,8 @@ def Bronx():
             hourlyforecast = rawhourlyforcast.json()
             periodData = hourlyforecast['properties']['periods']
             BronxCelcius = (int(periodData[0]['temperature'])-32)*(5/9)
-            bronxtime = periodData[0]['startTime']
+            Bronxtime = periodData[0]['startTime']
+            BronxHumidity = periodData[0]['relativeHumidity']['value']
         else:
             print(rawmeta.status_code + 'error /n reatempting in 10 seconds')
             time.sleep(10)
@@ -128,7 +131,7 @@ def Bronx():
         print(rawmeta.status_code + 'error /n reatempting in 10 seconds')
         time.sleep(10)
         Bronx()
-    return bronxtime, BronxCelcius
+    return Bronxtime, BronxCelcius, BronxHumidity
     
 def plotting(x, y, Date, OutT, task):
     if task == 'None':
@@ -147,10 +150,21 @@ def plotting(x, y, Date, OutT, task):
     print('Graphing complete')
     #plt.show()
 
+def DataUpload(BronxData, RefTime):
+    DataRef = db.reference('Bronx/%s/' % RefTime)
+    DataFormat = {
+        "Temperature":BronxData[1],
+        "Humidity":BronxData[2]
+    }
+    DataRef.child(BronxData[0]).set(DataFormat)
+    
+
 def Clock():
-    Coin = HourTracker()
-    BronxData = Bronx()  
-    Coin = False
+    while True:
+        RefTime = HourTracker()
+        BronxData = Bronx()
+        DataUpload(BronxData, RefTime)
+
 
 req = db.reference('Request/')
 
