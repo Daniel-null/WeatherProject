@@ -140,10 +140,6 @@ def plotting(x, y, Date, OutT, task):
     else:
         plt.plot(x, y)
         plt.plot(Date, OutT)
-    # plt.figure(1)
-    # plt.plot(bronxtime, bronxtemp, label='Bronx Temperature')
-    # plt.figure(2)
-    # plt.plot(timet, temperature, label='House Temperature')
     plt.savefig('Graph')
 
     storage.child('Graph.png').put('Graph.png')
@@ -158,20 +154,16 @@ def DataUpload(BronxData, RefTime):
     }
     DataRef.child(BronxData[0]).set(DataFormat)
     
-
 def Clock():
     while True:
         RefTime = HourTracker()
         BronxData = Bronx()
         DataUpload(BronxData, RefTime)
 
-
-req = db.reference('Request/')
-
 #must fix datapipline
 def dataproccessing():
+    req = db.reference('Request/')
     while True:
-
         pend = req.get()
         if pend['Task'] == 'Requested':
             dataset1 = pend['Data1']
@@ -179,7 +171,7 @@ def dataproccessing():
             Min = pend['Min']
             Max = pend['Max']
             GraphData = data(dataset1, dataset2, Min, Max)
-
+            
             if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
                 plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
             else:
