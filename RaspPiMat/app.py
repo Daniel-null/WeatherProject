@@ -145,7 +145,7 @@ def data(Data1, Data2, Min, Max):
                 BrTemp.append(BronxInfo[BronxDates[i]]['Temperature'])
                 if not BrTime:
                     BrTime.append(BronxDates[i])
-                    DataPacket.append(BrTime)
+                DataPacket.append(BrTime)
                 DataPacket.append(BrTemp)
     
     return DataPacket
@@ -177,13 +177,13 @@ def Bronx():
         Bronx()
     return Bronxtime, BronxCelcius, BronxHumidity
     
-def plotting(x, y, Date, OutT, task):
-    if task == 'None':
+def plotting(packet, Perm):
+    if Perm == 'None':
         fig = plt.figure()
-        plt.plot(x, y)
+        plt.plot(packet[0], packet[1])
     else:
-        plt.plot(x, y)
-        plt.plot(Date, OutT)
+        plt.plot(packet[0], packet[1])
+        plt.plot(packet[2], packet[3])
     plt.savefig('Graph')
 
     storage.child('Graph.png').put('Graph.png')
@@ -216,12 +216,7 @@ def dataproccessing():
             Max = pend['Max']
             GraphData = data(dataset1, dataset2, Min, Max)
 
-            plotting(GraphData)
-            # if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
-            #     plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
-            # else:
-            #     plotting(GraphData[2], GraphData[3], BronxData[0], BronxData[1], pend['Data2'])
-        #Completed = req.child('Task')
+            plotting(GraphData, dataset2)
         req.update({
             'Status':'Completed',
             'Task':'Idling'
