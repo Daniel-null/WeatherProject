@@ -159,7 +159,7 @@ def Bronx():
         meta = rawmeta.json()
         rawhourlyforcast = requests.get(meta['properties']['forecastHourly'])
         if rawhourlyforcast.status_code == 200:
-            print('hourly forcast recieved')
+            #print('hourly forcast recieved')
             hourlyforecast = rawhourlyforcast.json()
             periodData = hourlyforecast['properties']['periods']
             BronxCelcius = (int(periodData[0]['temperature'])-32)*(5/9)
