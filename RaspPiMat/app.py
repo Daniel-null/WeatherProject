@@ -191,11 +191,12 @@ def plotting(packet, Perm):
 #uploads bronx data to database
 def DataUpload(BronxData):
     DataRef = db.reference('Bronx/')
+    FormattedDate = BronxData[0]
     DataFormat = {
         "Temperature":BronxData[1],
         "Humidity":BronxData[2]
     }
-    DataRef.child(BronxData[0]).set(DataFormat)
+    DataRef.child(FormattedDate[:18]).set(DataFormat)
     
 #main thread, handles procceses for bronx data collection
 def Clock():
