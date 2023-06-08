@@ -26,5 +26,5 @@ BronxData = {
     "second":66
 }
 
-DataRef = db.reference('Bronx/%s/' % RefTime)
+DataRef = db.reference('Bronx/')
 DataRef.child(RefTime).set(BronxData)
