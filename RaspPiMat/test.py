@@ -28,3 +28,7 @@ BronxData = {
 
 DataRef = db.reference('Bronx/')
 DataRef.child(RefTime).set(BronxData)
+
+Datpacket = []
+Datpacket.extend(55, 60)
+print(Datpacket)

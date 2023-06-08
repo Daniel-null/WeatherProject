@@ -56,6 +56,8 @@ def data(Data1, Data2, Min, Max):
     BrTemp = []
     BrHum = []
     BrTime = []
+
+    DataPacket = []
     #refrencing the sensor data child node
     ref = db.reference('sensor_data/aht10')
     rawdata = ref.get()
@@ -93,6 +95,8 @@ def data(Data1, Data2, Min, Max):
             if ReqYearMin <= YearH and ReqYearMax >= YearH and ReqMonthMin <= MonthH and ReqMonthMax >= MonthH and ReqDayMin <= DayH and ReqDayMax >= DayH:
                 humidity.append(rawhumidity[Hkeys[i]]['humidity'])
                 timeh.append(rawhumidity[Hkeys[i]]['timestamp'])
+        DataPacket.append(timeh)
+        DataPacket.append(humidity)
 
     if Data1 == 'InTemp' or Data2 == 'InTemp':
     #same thing we did with humidity but with temperature
@@ -110,6 +114,8 @@ def data(Data1, Data2, Min, Max):
             if  ReqYearMin <= YearT and ReqYearMax >= YearT and ReqMonthMin <= MonthT and ReqMonthMax >= MonthT and ReqDayMin <= DayT and ReqDayMax >= DayT:
                 temperature.append(rawtemp[Tkeys[i]]['temp'])
                 timet.append(rawtemp[Tkeys[i]]['timestamp'])
+        DataPacket.append(timet)
+        DataPacket.append(temperature)
 
     if Data1 == 'OutHumid' or Data2 == 'OutHumid':
         BronxDates = list(BronxInfo.keys())
@@ -123,6 +129,8 @@ def data(Data1, Data2, Min, Max):
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
                 BrHum.append(BronxInfo[BronxDates[i]]['Humidity'])
                 BrTime.append(BronxDates[i])
+        DataPacket.append(BrTime)
+        DataPacket.append(BrHum)
 
     if Data1 == 'OutTemp' or Data2 == 'OutTemp':
         BronxDates = list(BronxInfo.keys())
@@ -137,8 +145,11 @@ def data(Data1, Data2, Min, Max):
                 BrTemp.append(BronxInfo[BronxDates[i]]['Temperature'])
                 if not BrTime:
                     BrTime.append(BronxDates[i])
-
-    return timeh, humidity, timet, temperature, BrTemp, BrHum, BrTime
+                    DataPacket.append(BrTime)
+                DataPacket.append(BrTemp)
+    
+    return DataPacket
+    #return timeh, humidity, timet, temperature, BrTemp, BrHum, BrTime
 
 def Bronx():
     #making a request for the meta data from my coordinates
@@ -196,7 +207,6 @@ def Clock():
 #must fix datapipline
 def dataproccessing():
     req = db.reference('Request/')
-    BronxRef = db.reference('Bronx') 
     while True:
         pend = req.get()
         if pend['Task'] == 'Requested':
@@ -206,10 +216,11 @@ def dataproccessing():
             Max = pend['Max']
             GraphData = data(dataset1, dataset2, Min, Max)
 
-            if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
-                plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
-            else:
-                plotting(GraphData[2], GraphData[3], BronxData[0], BronxData[1], pend['Data2'])
+            plotting(GraphData)
+            # if dataset1[:-5] == 'Humid' or dataset2[:-5] == 'Humid':
+            #     plotting(GraphData[0], GraphData[1], BronxData[0], BronxData[1], pend['Data2'])
+            # else:
+            #     plotting(GraphData[2], GraphData[3], BronxData[0], BronxData[1], pend['Data2'])
         #Completed = req.child('Task')
         req.update({
             'Status':'Completed',
