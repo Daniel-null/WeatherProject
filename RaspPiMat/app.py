@@ -3,6 +3,7 @@ from firebase_admin import credentials
 from firebase_admin import db
 import pyrebase
 import matplotlib.pyplot as plt
+from matplotlib import dates as mpl_dates
 import pandas as pd
 import requests
 import json
@@ -177,12 +178,19 @@ def Bronx():
     
 #handles plotting the data requested and uploading it
 def plotting(packet, Perm):
+    print('started graphing')
+    plt.style.use('seaborn')
     if Perm == 'None':
         fig = plt.figure()
-        plt.plot(packet[0], packet[1])
+        packet[0] = pd.to_datetime(packet[0])
+        plt.plot_date(packet[0], packet[1], marker='none', linestyle='solid')
+        plt.gcf().autofmt_xdate()
     else:
-        plt.plot(packet[0], packet[1])
-        plt.plot(packet[2], packet[3])
+        packet[0] = pd.to_datetime(packet[0])
+        packet[2] = pd.to_datetime(packet[2])
+        plt.plot_date(packet[0], packet[1], marker='none', linestyle='solid')
+        plt.plot_date(packet[2], packet[3], marker='none', linestyle='solid')
+        plt.gcf().autofmt_xdate()
     plt.savefig('Graph')
 
     storage.child('Graph.png').put('Graph.png')
@@ -191,12 +199,12 @@ def plotting(packet, Perm):
 #uploads bronx data to database
 def DataUpload(BronxData):
     DataRef = db.reference('Bronx/')
-    FormattedDate = BronxData[0]
+    CutDate = BronxData[0]
     DataFormat = {
         "Temperature":BronxData[1],
         "Humidity":BronxData[2]
     }
-    DataRef.child(FormattedDate[:18]).set(DataFormat)
+    DataRef.child(CutDate[:19]).set(DataFormat)
     
 #main thread, handles procceses for bronx data collection
 def Clock():
