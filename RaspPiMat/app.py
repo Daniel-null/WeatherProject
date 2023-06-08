@@ -183,13 +183,13 @@ def plotting(packet, Perm):
     if Perm == 'None':
         fig = plt.figure()
         packet[0] = pd.to_datetime(packet[0])
-        plt.plot_date(packet[0], packet[1], marker='none', linestyle='solid')
+        plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
         plt.gcf().autofmt_xdate()
     else:
         packet[0] = pd.to_datetime(packet[0])
         packet[2] = pd.to_datetime(packet[2])
-        plt.plot_date(packet[0], packet[1], marker='none', linestyle='solid')
-        plt.plot_date(packet[2], packet[3], marker='none', linestyle='solid')
+        plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
+        plt.plot_date(packet[2], packet[3], marker='', linestyle='solid')
         plt.gcf().autofmt_xdate()
     plt.savefig('Graph')
 
