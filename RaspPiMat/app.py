@@ -36,7 +36,7 @@ storage = firebase_storage.storage()
 def HourTracker():
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
-    print(current_time)
+    #print(current_time)
     RawClockCount = current_time.split(':')
     if int(RawClockCount[1]) and int(RawClockCount[2]) != 0:
         time.sleep(1)
