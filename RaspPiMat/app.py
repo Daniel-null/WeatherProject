@@ -53,7 +53,8 @@ def data(Data1, Data2, Min, Max):
     timet = []
     BrTemp = []
     BrHum = []
-    BrTime = []
+    BrTimeT = []
+    BrTimeH = []
     DataPacket = []
 
     #refrencing the sensor data child node & Bronx data
@@ -129,8 +130,8 @@ def data(Data1, Data2, Min, Max):
             BDay = int(BDate[2])
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
                 BrHum.append(BronxInfo[BronxDates[i]]['Humidity'])
-                BrTime.append(BronxDates[i])
-        DataPacket.append(BrTime)
+                BrTimeH.append(BronxDates[i])
+        DataPacket.append(BrTimeH)
         DataPacket.append(BrHum)
 
     if Data1 == 'OutTemp' or Data2 == 'OutTemp':
@@ -144,9 +145,8 @@ def data(Data1, Data2, Min, Max):
             BDay = int(BDate[2])
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
                 BrTemp.append(BronxInfo[BronxDates[i]]['Temperature'])
-                if not BrTime:
-                    BrTime.append(BronxDates[i])
-                DataPacket.append(BrTime)
+                BrTimeT.append(BronxDates[i])
+                DataPacket.append(BrTimeT)
                 DataPacket.append(BrTemp)
     return DataPacket
 
@@ -183,14 +183,21 @@ def plotting(packet, Perm):
     if Perm == 'None':
         fig = plt.figure()
         packet[0] = pd.to_datetime(packet[0])
+        print(packet[0])
         plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
         plt.gcf().autofmt_xdate()
+        plt.tight_layout
     else:
         packet[0] = pd.to_datetime(packet[0])
         packet[2] = pd.to_datetime(packet[2])
+        print(packet[0])
+        print(packet[2])
+        print(packet[1])
+        print(packet[3])
         plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
         plt.plot_date(packet[2], packet[3], marker='', linestyle='solid')
         plt.gcf().autofmt_xdate()
+        plt.tight_layout
     plt.savefig('Graph')
 
     storage.child('Graph.png').put('Graph.png')
@@ -205,6 +212,7 @@ def DataUpload(BronxData):
         "Humidity":BronxData[2]
     }
     DataRef.child(CutDate[:19]).set(DataFormat)
+    #print('upload succeful')
     
 #main thread, handles procceses for bronx data collection
 def Clock():
@@ -231,7 +239,7 @@ def dataproccessing():
             'Status':'Completed',
             'Task':'Idling'
         })
-        time.sleep(60)
+        time.sleep(10)
 
 Thread1 = threading.Thread(target=Clock, args=())
 Thread2 = threading.Thread(target=dataproccessing, args=())
