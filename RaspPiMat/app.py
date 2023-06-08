@@ -153,9 +153,9 @@ def Bronx():
     #making a request for the meta data from my coordinates
     #then storing the temperature, humadity, and time stamps from my area
     rawmeta = requests.get('https://api.weather.gov/points/40.8104808,-73.9250748')
-    print(rawmeta.status_code)
+    #print(rawmeta.status_code)
     if rawmeta.status_code == 200:
-        print('meta data has been recieved')
+        #print('meta data has been recieved')
         meta = rawmeta.json()
         rawhourlyforcast = requests.get(meta['properties']['forecastHourly'])
         if rawhourlyforcast.status_code == 200:
@@ -216,7 +216,7 @@ def dataproccessing():
             Min = pend['Min']
             Max = pend['Max']
             GraphData = data(dataset1, dataset2, Min, Max)
-
+            print('request Recieved')
             plotting(GraphData, dataset2)
         req.update({
             'Status':'Completed',
