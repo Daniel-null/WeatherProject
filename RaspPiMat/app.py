@@ -31,6 +31,8 @@ Config = {
 firebase_storage = pyrebase.initialize_app(Config)
 storage = firebase_storage.storage()
 
+#using threading it will keep track of time. Every hour it will make a request to the
+#bronx weaather api
 def HourTracker():
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
@@ -42,12 +44,7 @@ def HourTracker():
     else:
         return datetime.date.today()
 
-def Localtime():
-    #retrieving Eastern Standard time
-    ts = time.time()
-    systime = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
-    print(systime)
-
+#handles calling and storing data from the database
 def data(Data1, Data2, Min, Max):
     humidity = []
     temperature = []
@@ -56,9 +53,9 @@ def data(Data1, Data2, Min, Max):
     BrTemp = []
     BrHum = []
     BrTime = []
-
     DataPacket = []
-    #refrencing the sensor data child node
+
+    #refrencing the sensor data child node & Bronx data
     ref = db.reference('sensor_data/aht10')
     rawdata = ref.get()
 
@@ -76,6 +73,8 @@ def data(Data1, Data2, Min, Max):
     ReqMonthMax = int(formatedMax[1])
     ReqDayMax = int(formatedMax[2])
 
+    #each if statment checks which data is requested. It then packages it and appends it
+    #to the packet we will send back to the main thread
     if Data1 == 'InHumid' or Data2 == 'InHumid':
         #retrieving the humidity data
         #list the keys of the returned dictionary        
@@ -118,6 +117,7 @@ def data(Data1, Data2, Min, Max):
         DataPacket.append(temperature)
 
     if Data1 == 'OutHumid' or Data2 == 'OutHumid':
+        #using the reference we want to store the keys to each data point
         BronxDates = list(BronxInfo.keys())
 
         for i in range(len(BronxDates)):
@@ -147,9 +147,7 @@ def data(Data1, Data2, Min, Max):
                     BrTime.append(BronxDates[i])
                 DataPacket.append(BrTime)
                 DataPacket.append(BrTemp)
-    
     return DataPacket
-    #return timeh, humidity, timet, temperature, BrTemp, BrHum, BrTime
 
 def Bronx():
     #making a request for the meta data from my coordinates
@@ -177,6 +175,7 @@ def Bronx():
         Bronx()
     return Bronxtime, BronxCelcius, BronxHumidity
     
+#handles plotting the data requested and uploading it
 def plotting(packet, Perm):
     if Perm == 'None':
         fig = plt.figure()
@@ -188,8 +187,8 @@ def plotting(packet, Perm):
 
     storage.child('Graph.png').put('Graph.png')
     print('Graphing complete')
-    #plt.show()
 
+#uploads bronx data to database
 def DataUpload(BronxData):
     DataRef = db.reference('Bronx/')
     DataFormat = {
@@ -198,13 +197,15 @@ def DataUpload(BronxData):
     }
     DataRef.child(BronxData[0]).set(DataFormat)
     
+#main thread, handles procceses for bronx data collection
 def Clock():
     while True:
         HourTracker()
         BronxData = Bronx()
         DataUpload(BronxData)
+        time.sleep(1)
 
-#must fix datapipline
+#the main function thread, handles the process for packaging data and graphing
 def dataproccessing():
     req = db.reference('Request/')
     while True:
