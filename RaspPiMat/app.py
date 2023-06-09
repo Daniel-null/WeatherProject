@@ -96,6 +96,7 @@ def data(Data1, Data2, Min, Max):
             if ReqYearMin <= YearH and ReqYearMax >= YearH and ReqMonthMin <= MonthH and ReqMonthMax >= MonthH and ReqDayMin <= DayH and ReqDayMax >= DayH:
                 humidity.append(rawhumidity[Hkeys[i]]['humidity'])
                 timeh.append(rawhumidity[Hkeys[i]]['timestamp'])
+        DataPacket.append('Inside Humidity')
         DataPacket.append(timeh)
         DataPacket.append(humidity)
 
@@ -115,6 +116,7 @@ def data(Data1, Data2, Min, Max):
             if  ReqYearMin <= YearT and ReqYearMax >= YearT and ReqMonthMin <= MonthT and ReqMonthMax >= MonthT and ReqDayMin <= DayT and ReqDayMax >= DayT:
                 temperature.append(rawtemp[Tkeys[i]]['temp'])
                 timet.append(rawtemp[Tkeys[i]]['timestamp'])
+        DataPacket.append('Inside Temperature')
         DataPacket.append(timet)
         DataPacket.append(temperature)
 
@@ -131,6 +133,7 @@ def data(Data1, Data2, Min, Max):
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
                 BrHum.append(BronxInfo[BronxDates[i]]['Humidity'])
                 BrTimeH.append(BronxDates[i])
+        DataPacket.append('OutDoor Humidity')
         DataPacket.append(BrTimeH)
         DataPacket.append(BrHum)
 
@@ -146,6 +149,7 @@ def data(Data1, Data2, Min, Max):
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
                 BrTemp.append(BronxInfo[BronxDates[i]]['Temperature'])
                 BrTimeT.append(BronxDates[i])
+                DataPacket.append('OutDoor Temperature')
                 DataPacket.append(BrTimeT)
                 DataPacket.append(BrTemp)
     return DataPacket
@@ -181,8 +185,9 @@ def plotting(packet, Data1, Data2):
     print('started graphing')
     if Data2 == 'None':
         plt.style.use('seaborn')
-        packet[0] = pd.to_datetime(packet[0])
-        plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
+        packet[1] = pd.to_datetime(packet[1])
+        plt.plot_date(packet[1], packet[2], marker='', linestyle='solid', label=packet[0])
+        plt.legend(loc='upper left')
         plt.gcf().autofmt_xdate()
         plt.tight_layout()
         plt.savefig('Graph')
@@ -191,22 +196,24 @@ def plotting(packet, Data1, Data2):
         fig = plt.figure()
         ax = fig.add_subplot(111, label='1')
         ax2 = fig.add_subplot(111, label='2', frame_on=False)
-        packet[0] = pd.to_datetime(packet[0])
-        packet[2] = pd.to_datetime(packet[2])
-        ax.plot_date(packet[0], packet[1], marker='', linestyle='solid', color='C0')
-        ax2.plot_date(packet[2], packet[3], marker='', linestyle='solid', color='C1')
+        packet[1] = pd.to_datetime(packet[1])
+        packet[4] = pd.to_datetime(packet[4])
+        ax.plot_date(packet[1], packet[2], marker='', linestyle='solid', color='C0', label=packet[0])
+        ax2.plot_date(packet[4], packet[5], marker='', linestyle='solid', color='C1', label=packet[3])
         ax2.set_xticks([])
         ax2.yaxis.tick_right()
+        fig.legend(loc='upper left')
         plt.gcf().autofmt_xdate()
         fig.tight_layout()
         fig.savefig('Graph')
         fig.clf()
     else:
         plt.style.use('seaborn')
-        packet[0] = pd.to_datetime(packet[0])
-        packet[2] = pd.to_datetime(packet[2])
-        plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
-        plt.plot_date(packet[2], packet[3], marker='', linestyle='solid')
+        packet[1] = pd.to_datetime(packet[1])
+        packet[4] = pd.to_datetime(packet[4])
+        plt.plot_date(packet[1], packet[2], marker='', linestyle='solid', label=packet[0])
+        plt.plot_date(packet[4], packet[5], marker='', linestyle='solid', label=packet[3])
+        plt.legend(loc='upper left')
         plt.gcf().autofmt_xdate()
         plt.tight_layout()
         plt.savefig('Graph')
