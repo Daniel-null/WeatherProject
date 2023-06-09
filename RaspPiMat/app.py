@@ -94,9 +94,10 @@ def data(Data1, Data2, Min, Max):
             DayH = int(YearMonthDayH[2])
 
             if ReqYearMin <= YearH and ReqYearMax >= YearH and ReqMonthMin <= MonthH and ReqMonthMax >= MonthH and ReqDayMin <= DayH and ReqDayMax >= DayH:
-                humidity.append(rawhumidity[Hkeys[i]]['humidity'])
+                humidity.append(float(rawhumidity[Hkeys[i]]['humidity']))
                 timeh.append(rawhumidity[Hkeys[i]]['timestamp'])
         DataPacket.append('Inside Humidity')
+        DataPacket.append('%')
         DataPacket.append(timeh)
         DataPacket.append(humidity)
 
@@ -114,9 +115,10 @@ def data(Data1, Data2, Min, Max):
             DayT = int(YearMonthDayT[2])
 
             if  ReqYearMin <= YearT and ReqYearMax >= YearT and ReqMonthMin <= MonthT and ReqMonthMax >= MonthT and ReqDayMin <= DayT and ReqDayMax >= DayT:
-                temperature.append(rawtemp[Tkeys[i]]['temp'])
+                temperature.append(float(rawtemp[Tkeys[i]]['temp']))
                 timet.append(rawtemp[Tkeys[i]]['timestamp'])
         DataPacket.append('Inside Temperature')
+        DataPacket.append('Celcius')
         DataPacket.append(timet)
         DataPacket.append(temperature)
 
@@ -131,9 +133,10 @@ def data(Data1, Data2, Min, Max):
             BMonth = int(BDate[1])
             BDay = int(BDate[2])
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
-                BrHum.append(BronxInfo[BronxDates[i]]['Humidity'])
+                BrHum.append(float(BronxInfo[BronxDates[i]]['Humidity']))
                 BrTimeH.append(BronxDates[i])
         DataPacket.append('OutDoor Humidity')
+        DataPacket.append('%')
         DataPacket.append(BrTimeH)
         DataPacket.append(BrHum)
 
@@ -147,9 +150,10 @@ def data(Data1, Data2, Min, Max):
             BMonth = int(BDate[1])
             BDay = int(BDate[2])
             if  ReqYearMin <= BYear and ReqYearMax >= BYear and ReqMonthMin <= BMonth and ReqMonthMax >= BMonth and ReqDayMin <= BDay and ReqDayMax >= BDay:
-                BrTemp.append(BronxInfo[BronxDates[i]]['Temperature'])
+                BrTemp.append(float(BronxInfo[BronxDates[i]]['Temperature']))
                 BrTimeT.append(BronxDates[i])
                 DataPacket.append('OutDoor Temperature')
+                DataPacket.append('Celcius')
                 DataPacket.append(BrTimeT)
                 DataPacket.append(BrTemp)
     return DataPacket
@@ -185,39 +189,49 @@ def plotting(packet, Data1, Data2):
     print('started graphing')
     if Data2 == 'None':
         plt.style.use('seaborn')
-        packet[1] = pd.to_datetime(packet[1])
-        plt.plot_date(packet[1], packet[2], marker='', linestyle='solid', label=packet[0])
+        packet[2] = pd.to_datetime(packet[2])
+        plt.plot_date(packet[2], packet[3], marker='', linestyle='solid', label=packet[0])
+        plt.ylabel(packet[1])
         plt.legend(loc='upper left')
         plt.gcf().autofmt_xdate()
-        plt.tight_layout()
+        plt.gcf().set_size_inches(10, 7)
+        #plt.tight_layout()
         plt.savefig('Graph')
         plt.clf()
-    elif Data1[-5:] != Data2[-5:] or Data1[-4:] != Data2[-4:]:
+    elif Data1[-5:] == Data2[-5:] or Data1[-4:] == Data2[-4:]:
+        plt.style.use('seaborn')
+        packet[2] = pd.to_datetime(packet[2])
+        packet[6] = pd.to_datetime(packet[6])
+        plt.plot_date(packet[2], packet[3], marker='', linestyle='solid', label=packet[0])
+        plt.plot_date(packet[6], packet[7], marker='', linestyle='solid', label=packet[4])
+        plt.ylabel(packet[1])
+        plt.legend(loc='upper left')
+        plt.gcf().autofmt_xdate()
+        plt.gcf().set_size_inches(10, 7)
+        #plt.tight_layout()
+        plt.savefig('Graph')
+        plt.clf()
+    else:
         fig = plt.figure()
+        plt.style.use('classic')
         ax = fig.add_subplot(111, label='1')
         ax2 = fig.add_subplot(111, label='2', frame_on=False)
-        packet[1] = pd.to_datetime(packet[1])
-        packet[4] = pd.to_datetime(packet[4])
-        ax.plot_date(packet[1], packet[2], marker='', linestyle='solid', color='C0', label=packet[0])
-        ax2.plot_date(packet[4], packet[5], marker='', linestyle='solid', color='C1', label=packet[3])
+        packet[2] = pd.to_datetime(packet[2])
+        packet[6] = pd.to_datetime(packet[6])
+        ax.plot_date(packet[2], packet[3], marker='', linestyle='solid', color='C0', label=packet[0])
+        ax2.plot_date(packet[6], packet[7], marker='', linestyle='solid', color='C1', label=packet[4])
+        ax.set_ylabel(packet[1])
+        ax2.set_ylabel(packet[5])
+        ax2.yaxis.set_label_position('right')
         ax2.set_xticks([])
         ax2.yaxis.tick_right()
         fig.legend(loc='upper left')
         plt.gcf().autofmt_xdate()
-        fig.tight_layout()
+        plt.gcf().set_size_inches(10, 7)
+        #fig.tight_layout()
         fig.savefig('Graph')
-        fig.clf()
-    else:
-        plt.style.use('seaborn')
-        packet[1] = pd.to_datetime(packet[1])
-        packet[4] = pd.to_datetime(packet[4])
-        plt.plot_date(packet[1], packet[2], marker='', linestyle='solid', label=packet[0])
-        plt.plot_date(packet[4], packet[5], marker='', linestyle='solid', label=packet[3])
-        plt.legend(loc='upper left')
-        plt.gcf().autofmt_xdate()
-        plt.tight_layout()
-        plt.savefig('Graph')
         plt.clf()
+
 
     storage.child('Graph.png').put('Graph.png')
     print('Graphing complete')
@@ -261,7 +275,7 @@ def dataproccessing():
             'Status':'Completed',
             'Task':'Idling'
         })
-        time.sleep(10)
+        time.sleep(5)
 
 Thread1 = threading.Thread(target=Clock, args=())
 Thread2 = threading.Thread(target=dataproccessing, args=())
