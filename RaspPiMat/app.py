@@ -148,7 +148,6 @@ def data(Data1, Data2, Min, Max):
                 BrTimeT.append(BronxDates[i])
                 DataPacket.append(BrTimeT)
                 DataPacket.append(BrTemp)
-    print(DataPacket)
     return DataPacket
 
 def Bronx():
@@ -178,27 +177,43 @@ def Bronx():
     return Bronxtime, BronxCelcius, BronxHumidity
     
 #handles plotting the data requested and uploading it
-def plotting(packet, Perm):
+def plotting(packet, Data1, Data2):
     print('started graphing')
-    plt.style.use('seaborn')
-    if Perm == 'None':
-        fig = plt.figure()
+    if Data2 == 'None':
+        plt.style.use('seaborn')
         packet[0] = pd.to_datetime(packet[0])
         plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
         plt.gcf().autofmt_xdate()
-        plt.tight_layout
+        plt.tight_layout()
+        plt.savefig('Graph')
+        plt.clf()
+    elif Data1[-5:] != Data2[-5:] or Data1[-4:] != Data2[-4:]:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, label='1')
+        ax2 = fig.add_subplot(111, label='2', frame_on=False)
+        packet[0] = pd.to_datetime(packet[0])
+        packet[2] = pd.to_datetime(packet[2])
+        ax.plot_date(packet[0], packet[1], marker='', linestyle='solid', color='C0')
+        ax2.plot_date(packet[2], packet[3], marker='', linestyle='solid', color='C1')
+        ax2.set_xticks([])
+        ax2.yaxis.tick_right()
+        plt.gcf().autofmt_xdate()
+        fig.tight_layout()
+        fig.savefig('Graph')
+        fig.clf()
     else:
+        plt.style.use('seaborn')
         packet[0] = pd.to_datetime(packet[0])
         packet[2] = pd.to_datetime(packet[2])
         plt.plot_date(packet[0], packet[1], marker='', linestyle='solid')
         plt.plot_date(packet[2], packet[3], marker='', linestyle='solid')
         plt.gcf().autofmt_xdate()
-        plt.tight_layout
-    plt.savefig('Graph')
+        plt.tight_layout()
+        plt.savefig('Graph')
+        plt.clf()
 
     storage.child('Graph.png').put('Graph.png')
     print('Graphing complete')
-    plt.clf()
 
 #uploads bronx data to database
 def DataUpload(BronxData):
@@ -229,9 +244,12 @@ def dataproccessing():
             dataset2 = pend['Data2']
             Min = pend['Min']
             Max = pend['Max']
-            GraphData = data(dataset1, dataset2, Min, Max)
-            print('request Recieved')
-            plotting(GraphData, dataset2)
+            if dataset1 == dataset2:
+                print('request denied')
+            else:
+                GraphData = data(dataset1, dataset2, Min, Max)
+                print('request Recieved')
+                plotting(GraphData, dataset1, dataset2)
         req.update({
             'Status':'Completed',
             'Task':'Idling'
