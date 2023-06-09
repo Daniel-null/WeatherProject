@@ -148,6 +148,7 @@ def data(Data1, Data2, Min, Max):
                 BrTimeT.append(BronxDates[i])
                 DataPacket.append(BrTimeT)
                 DataPacket.append(BrTemp)
+    print(DataPacket)
     return DataPacket
 
 def Bronx():
@@ -197,6 +198,7 @@ def plotting(packet, Perm):
 
     storage.child('Graph.png').put('Graph.png')
     print('Graphing complete')
+    plt.clf()
 
 #uploads bronx data to database
 def DataUpload(BronxData):
