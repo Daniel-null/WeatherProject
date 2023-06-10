@@ -11,7 +11,8 @@ import time
 import datetime
 import threading
 
-#google real time database credentials and connection
+#google credentials and connection
+#needed to make read and write request to googles real time database and storage
 cred = credentials.Certificate("tempmeasure-ac038-firebase-adminsdk-btvrw-8575135791.json")
 app = firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://tempmeasure-ac038-default-rtdb.firebaseio.com/'
@@ -45,7 +46,8 @@ def HourTracker():
     else:
         return datetime.date.today()
 
-#handles calling and storing data from the database
+#The data function makes a call to the realtime database and sorts through the data 
+#and puts it all in a neat package that makes it easy to graph
 def data(Data1, Data2, Min, Max):
     humidity = []
     temperature = []
@@ -57,14 +59,15 @@ def data(Data1, Data2, Min, Max):
     BrTimeH = []
     DataPacket = []
 
-    #refrencing the sensor data child node & Bronx data
+    #Before you make a call to the realtime database
+    #you want to give python a reference to the location where the data we want to pull is
     ref = db.reference('sensor_data/aht10')
     rawdata = ref.get()
 
     BronxRef = db.reference('Bronx/')
     BronxInfo = BronxRef.get()
 
-    #int of the range of dates requested
+    #I split the dates and convert to intigers as this is ideal for comparisons
     formatedMin = Min.split('-')
     ReqYearMin = int(formatedMin[0])
     ReqMonthMin = int(formatedMin[1])
@@ -158,8 +161,9 @@ def data(Data1, Data2, Min, Max):
                 DataPacket.append(BrTemp)
     return DataPacket
 
+#The bronx function makes a get request to the national weather api
 def Bronx():
-    #making a request for the meta data from my coordinates
+    #making a request for my weather data from my coordinates
     #then storing the temperature, humadity, and time stamps from my area
     rawmeta = requests.get('https://api.weather.gov/points/40.8104808,-73.9250748')
     #print(rawmeta.status_code)
@@ -187,6 +191,8 @@ def Bronx():
 #handles plotting the data requested and uploading it
 def plotting(packet, Data1, Data2):
     print('started graphing')
+    #checks for conditoning to plot a graph
+    #all this code is to A) graoh the data and B) make it pretty
     if Data2 == 'None':
         plt.style.use('seaborn')
         packet[2] = pd.to_datetime(packet[2])
@@ -231,8 +237,7 @@ def plotting(packet, Data1, Data2):
         #fig.tight_layout()
         fig.savefig('Graph')
         plt.clf()
-
-
+    #we then save the figure as a png and upload it to googles storage api
     storage.child('Graph.png').put('Graph.png')
     print('Graphing complete')
 
@@ -247,7 +252,7 @@ def DataUpload(BronxData):
     DataRef.child(CutDate[:19]).set(DataFormat)
     #print('upload succeful')
     
-#main thread, handles procceses for bronx data collection
+#second soruce thread, handles the schedule for bronx data collection
 def Clock():
     while True:
         HourTracker()

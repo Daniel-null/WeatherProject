@@ -8,13 +8,14 @@
 </head>
 <body>
     <div>
+        <!-- All the possible comparison options -->
         <select name="dataset" id="req">
             <optgroup label="Temperature">
                 <option value="InTemp">Indoor Temperature</option>
                 <option value="OutTemp">OutDoor Temperature</option>                
             </optgroup>
             <optgroup label="Humidity">
-                <option value="InHumid">Indoor Humidity</option>
+                <option value="InHumid">Indoor Humid ity</option>
                 <option value="OutHumid">Outdoor Humidity</option>
             </optgroup>
         </select>
@@ -33,6 +34,7 @@
     <div>
         <p>start time end time</p>
     </div>
+    <!-- The calander to select and start and end time -->
     <div>
         <input type="date" id="start">
         <input type="date" id="end">
@@ -41,10 +43,12 @@
         <button id="request">Graph</button>
         <button id="refresh">Refresh</button>
     </div>
+    <!-- image element -->
     <div>
         <img src="" alt="" id="graph">
     </div>
     <script type="module">
+        //javascript used to handle google apis
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-analytics.js";
